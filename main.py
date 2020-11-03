@@ -46,3 +46,6 @@ def compare_words(word1, word2):
 # Returns a list of tuples of w1 + w2 - w3 and their nearest words.
 def x_y_minusz(w1, w2, w3, n):
     result = model.most_similar(positive = [w1, w2], negative = [w3])
+
+
+test

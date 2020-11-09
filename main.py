@@ -3,6 +3,7 @@
 import gensim
 import numpy as np
 from sys import getsizeof
+import pickle
 #%%
 model = gensim.models.KeyedVectors.load_word2vec_format('/home/tyarosevich/code_work/word2vec_news/GoogleNews-vectors-negative300.bin', binary=True)
 
@@ -53,3 +54,10 @@ test_vec = vectors[n, :]
 control_vec = model.get_vector(test_key)
 
 print(test_vec == control_vec)
+
+#%%
+with open('w2v_as_np.pickle', 'wb') as f:
+    pickle.dump(vectors, f)
+
+with open('labels_for_npmat.pickle', 'wb') as f:
+    pickle.dump(labels, f)

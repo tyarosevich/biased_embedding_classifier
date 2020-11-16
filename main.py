@@ -70,32 +70,101 @@ with open('w2v_as_np.pickle', 'rb') as f:
 with open('labels_for_npmat.pickle', 'rb') as f:
     labels = pickle.load(f)
 
-#%%
-# Obtain the vectors to idenify a gender subspace
+#%% Various functions to process the corpus.
+
 
 # Function to retrieve vector by word. Gensim is a little obtuse.
 def get_vector(word, labels, vectors):
+    '''
+
+    Parameters
+    ----------
+    word: str
+        The word to look up.
+    labels: list
+        List of the word labels for the embeddings.
+    vectors: ndarray
+        Corpus of word embeddings
+
+    Returns
+    -------
+    ndarray
+        Word embedding vector for the word.
+    '''
     idx = np.where(labels == word)
     return np.squeeze(vectors[idx, :])
 
+
+# Returns a subspace based on a list of pairs that are assumed
+# to have a meaningful analogy relation such as gender or racial pairs.
+def get_subspace(labels, vectors, pair_list):
+    '''
+    Parameters
+    ----------
+    labels: list
+        List of labels for embeddings
+    vectors: ndarray
+        Corpus of word embeddings
+    pair_list: list
+        List of tuples of analogy pairs.
+
+    Returns
+    -------
+    ndarray
+        Numpy array of concatenated vectors of difference between pairs.
+    '''
+    dim = (np.shape(vectors)[1], len(pair_list))
+    subspace = np.zeros(dim)
+
+    for i, pair in enumerate(pair_list):
+        vec = get_vector(pair[0], labels, vectors) - get_vector(pair[1], labels, vectors)
+        subspace[:, i] = vec
+    return subspace
+
+# Converts columns of the subspace to unit vectors,
+# and returns the SVD.
+def norm_svd(subspace):
+    '''
+    Parameters
+    ----------
+    subspace: ndarray
+        The matrix representing the subspace to be studied.
+
+    Returns
+    -------
+    tuple
+        A tuple containing the SVD of the normalized subspace. Format is
+        (U, S, VT) where VT signifies transpose of V.
+    '''
+    norm_gsub = subspace / subspace.sum(axis = 0, keepdims = 1)
+    U, S, VT = np.linalg.svd(norm_gsub)
+    return (U, S, VT)
+
+# Plots the singular values as a % of total variance.
+def sing_value_plot(S):
+    '''
+    Parameters
+    ----------
+    S: ndarray
+        The vector containing the singular values.
+
+    Returns
+    -------
+    None
+
+    '''
+    total = np.sum(S)
+    perc_sigma = S / total
+
+    plt.bar(range(10), perc_sigma)
+    plt.ylabel('$\sigma$ value')
+    plt.xlabel('$\sigma$')
+#%%
+# Get the gender subspace
 gender_pair_list = [ ('she', 'he'), ('her', 'his'), ('woman', 'man'), ('Mary', 'John'), ('herself', 'himself'),
                      ('daughter', 'son'), ('mother', 'father'), ('gal', 'guy'), ('girl', 'boy'), ('female', 'male')]
 
-gender_subspace = np.zeros( (300,10) )
+gender_subspace = get_subspace(labels, vectors, gender_pair_list)
+U, S, VT = norm_svd(gender_subspace)
+sing_value_plot(S)
 
-for i, pair in enumerate(gender_pair_list):
-    vec = get_vector(pair[0], labels, vectors) - get_vector(pair[1], labels, vectors)
-    gender_subspace[:, i] = vec
-
-#%%
-
-norm_gsub = gender_subspace / gender_subspace.sum(axis = 0, keepdims = 1)
-U, S, VT = np.linalg.svd(norm_gsub)
-
-#%%
-total = np.sum(S)
-perc_sigma = S / total
-
-plt.bar(range(10), perc_sigma)
-plt.ylabel('$\sigma$ value')
-plt.xlabel('$\sigma$')

@@ -9,6 +9,8 @@ from sklearn.preprocessing import normalize
 from matplotlib import colors
 import helpers
 from importlib import reload
+import timeit
+
 
 # reload helper functions because ipython is lame.
 #%% Loads the word2vec news corpus into gensim to make use of gensims
@@ -58,4 +60,9 @@ plt.show()
 
 #%%
 
+start1 = timeit.timeit()
 test_subspace = helpers.get_PCA_subspace(gender_pair_list, labels, vectors)
+end1 = timeit.timeit()
+print(end1 - start1)
+
+

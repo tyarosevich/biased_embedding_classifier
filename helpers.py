@@ -160,3 +160,15 @@ def get_PCA_subspace(pair_list, labels, embeddings, num_sigmas = 10):
     pca = PCA(n_components = num_sigmas)
     pca.fit(matrix)
     return matrix
+
+def OG_doPCA(pairs, embedding, num_components = 10):
+    matrix = []
+    for a, b in pairs:
+        center = (embedding.v(a) + embedding.v(b))/2
+        matrix.append(embedding.v(a) - center)
+        matrix.append(embedding.v(b) - center)
+    matrix = np.array(matrix)
+    pca = PCA(n_components = num_components)
+    pca.fit(matrix)
+    # bar(range(num_components), pca.explained_variance_ratio_)
+    return pca

@@ -7,7 +7,10 @@ import pickle
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import normalize
 from matplotlib import colors
-from helpers import *
+import helpers
+from importlib import reload
+
+# reload helper functions because ipython is lame.
 #%% Loads the word2vec news corpus into gensim to make use of gensims
 # analytical tools.
 
@@ -44,11 +47,15 @@ with open('labels_for_npmat.pickle', 'rb') as f:
 
 gender_pair_list = [ ('she', 'he'), ('her', 'his'), ('woman', 'man'), ('Mary', 'John'), ('herself', 'himself'),
                      ('daughter', 'son'), ('mother', 'father'), ('gal', 'guy'), ('girl', 'boy'), ('female', 'male')]
+from helpers import *
 
-gender_subspace = get_subspace(labels, vectors, gender_pair_list)
-U, S, VT = norm_svd(gender_subspace)
+gender_subspace = helpers.get_subspace(labels, vectors, gender_pair_list)
+U, S, VT = helpers.norm_svd(gender_subspace)
 
 #%%
 sing_value_plot(S)
 plt.show()
 
+#%%
+
+test_subspace = helpers.get_PCA_subspace(gender_pair_list, labels, vectors)

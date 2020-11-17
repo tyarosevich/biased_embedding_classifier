@@ -1,7 +1,10 @@
+#### NOTE THIS FILE INCLUDES RE-IMPLEMENTATION OF SMALL AMOUNTS OF CODE
+#### FROM THE ORIGINAL PAPER FOUND AT: https://github.com/tolga-b/debiaswe/blob/master/debiaswe/debias.py
+
 import gensim
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import normalize
+from sklearn.decomposition import PCA
 
 
 # Various functions to process the corpus.
@@ -128,3 +131,32 @@ def sing_value_plot(S, **kwargs):
     plt.ylabel('$\sigma$ value')
     plt.xlabel('$\sigma$')
     return ax
+
+def get_PCA_subspace(pair_list, labels, embeddings, num_sigmas = 10):
+    '''
+    Parameters
+    ----------
+    pair_list: list
+        List of gender word pair tuples
+    labels: list
+        list of string labels associated with embeddings
+    embeddings: ndarray
+        corpus of word2vec embeddings
+    num_sigmas: int
+        Number of components to use in the PCA
+
+    Returns
+    -------
+    ndarray
+    '''
+    dim = (np.shape(embeddings)[1], len(pair_list) * 2)
+    matrix = np.empty(dim)
+    for i, pair in enumerate(pair_list):
+        v1 = get_vector(pair[0], labels, embeddings)
+        v2 = get_vector(pair[1], labels, embeddings)
+        center = (v1 + v2) / 2
+        matrix[:, i * 2] = v1 - center
+        matrix[:, i*2 + 1] = v2 - center
+    pca = PCA(n_components = num_sigmas)
+    pca.fit(matrix)
+    return matrix

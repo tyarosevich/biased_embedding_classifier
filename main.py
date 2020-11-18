@@ -11,6 +11,7 @@ import helpers
 from importlib import reload
 import timeit
 from sklearn.decomposition import PCA
+import json
 
 
 # reload helper functions because ipython is lame.
@@ -60,9 +61,23 @@ plt.show()
 
 #%%
 
-gender_direction = U[:,1]
+# Load the JSON files
+
+with open('debiaswe/data/definitional_pairs.json', "r") as f:
+    defs = json.load(f)
+with open('debiaswe/data/equalize_pairs.json', "r") as f:
+    equalize_pairs = json.load(f)
+with open('debiaswe/data/gender_specific_full.json', "r") as f:
+    gender_specific_words = json.load(f)
+with open('debiaswe/data/professions.json', "r") as f:
+    professions_list = json.load(f)
 
 #%%
-word = 'he'
-bias = helpers.get_direct_bias(word, gender_direction, labels, vectors)
-print(bias)
+gender_direction = helpers.get_vector('she', labels, vectors) - helpers.get_vector('he', labels, vectors)
+gender_direction /= np.linalg.norm(gender_direction)
+
+#%%
+prof_biase = sorted( [ (helpers.get_vector(w[0], labels, vectors)@gender_direction, w[0]) for w in professions_list])
+
+#%%
+print(prof_biase[-20:])

@@ -63,7 +63,9 @@ def get_vector(word, labels, vectors):
         Word embedding vector for the word.
     '''
     idx = np.where(labels == word)
-    return np.squeeze(vectors[idx, :])
+    vec = np.squeeze(vectors[idx, :])
+    vec /= np.linalg.norm(vec)
+    return vec
 
 
 # Returns a subspace based on a list of pairs that are assumed

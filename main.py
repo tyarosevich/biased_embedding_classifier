@@ -10,6 +10,7 @@ from matplotlib import colors
 import helpers
 from importlib import reload
 import timeit
+from sklearn.decomposition import PCA
 
 
 # reload helper functions because ipython is lame.
@@ -49,20 +50,19 @@ with open('labels_for_npmat.pickle', 'rb') as f:
 
 gender_pair_list = [ ('she', 'he'), ('her', 'his'), ('woman', 'man'), ('Mary', 'John'), ('herself', 'himself'),
                      ('daughter', 'son'), ('mother', 'father'), ('gal', 'guy'), ('girl', 'boy'), ('female', 'male')]
-from helpers import *
 
 gender_subspace = helpers.get_subspace(labels, vectors, gender_pair_list)
 U, S, VT = helpers.norm_svd(gender_subspace)
 
 #%%
-sing_value_plot(S)
+helpers.sing_value_plot(S)
 plt.show()
 
 #%%
 
-start1 = timeit.timeit()
-test_subspace = helpers.get_PCA_subspace(gender_pair_list, labels, vectors)
-end1 = timeit.timeit()
-print(end1 - start1)
+gender_direction = U[:,1]
 
-
+#%%
+word = 'he'
+bias = helpers.get_direct_bias(word, gender_direction, labels, vectors)
+print(bias)

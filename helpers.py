@@ -172,3 +172,30 @@ def OG_doPCA(pairs, embedding, num_components = 10):
     pca.fit(matrix)
     # bar(range(num_components), pca.explained_variance_ratio_)
     return pca
+
+def get_direct_bias(word, g, labels, vectors,c=1.0):
+    '''
+    Parameters
+    ----------
+    word: str
+        Word to lookup bias for
+    g: ndarray
+        the bias direction
+    labels: list
+        List of corpus labels
+    vectors: ndarray
+        The corpus of embeddings
+    c: float
+        strictness parameter
+
+
+    Returns
+    -------
+
+    '''
+    v1 = get_vector(word, labels, vectors)
+    v1 /= np.linalg.norm(v1)
+    v2 = g
+    v2 /= np.linalg.norm(v2)
+    bias = (abs( v1@v2 ))**c
+    return bias

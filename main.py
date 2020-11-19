@@ -19,11 +19,25 @@ import json
 # analytical tools.
 
 model = gensim.models.KeyedVectors.load_word2vec_format('/home/tyarosevich/code_work/word2vec_news/GoogleNews-vectors-negative300.bin', binary=True)
+print(len(vocab))
+#%%
+# Load the debiased version
+model_debiased = gensim.models.KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300-hard-debiased.bin', binary=True)
+print(len(vocab))
 
-vocab = model.vocab.keys()
-wordsInVocab = len(vocab)
-print (wordsInVocab)
+#%% Convert to numpy arrays and pickle
 
+#Converts the gensim model to a numpy array.
+# and corresponding labels.
+# vectors_debiased = np.asarray(model_debiased.wv.vectors)
+# labels_debiased = np.asarray(model.wv.index2word)
+#
+# # Saves this (large) numpy array to file.
+# with open('w2v_as_np_debiased.pickle', 'wb') as f:
+#     pickle.dump(vectors, f)
+#
+# with open('labels_debiased.pickle', 'wb') as f:
+#     pickle.dump(labels, f)
 
 #%%
 
@@ -39,12 +53,22 @@ print (wordsInVocab)
 # with open('labels_for_npmat.pickle', 'wb') as f:
 #     pickle.dump(labels, f)
 
+#%% The difference set
+vectors_short = vectors[:,0:10000]
+vec_short_norm = vectors_short / np.linalg.norm(vectors_short, axis=0, ord=2)
+
 #%% Loads the saved numpy array and labels.
 with open('w2v_as_np.pickle', 'rb') as f:
     vectors = pickle.load(f)
 
 with open('labels_for_npmat.pickle', 'rb') as f:
     labels = pickle.load(f)
+
+with open('w2v_as_np_debiased.pickle', 'rb') as f:
+    vectors_debiased = pickle.load(f)
+
+with open('labels_debiased.pickle.pickle', 'rb') as f:
+    labels_debiased = pickle.load(f)
 
 
 #%% Declares the gender subspace pairs, then finds the subspace and plots the sigmas.
@@ -77,7 +101,8 @@ gender_direction = helpers.get_vector('she', labels, vectors) - helpers.get_vect
 gender_direction /= np.linalg.norm(gender_direction)
 
 #%%
-prof_biase = sorted( [ (helpers.get_vector(w[0], labels, vectors)@gender_direction, w[0]) for w in professions_list])
 
-#%%
-print(prof_biase[-20:])
+
+
+
+#

@@ -26,6 +26,27 @@ def x_y_minusz(model, w1, w2, w3, n):
     result = model.most_similar(positive = [w1, w2], negative = [w3], topn = n)
     return result
 
+def he_she_compare(model, word):
+    '''
+    Returns a synonym comparison of 'he : word -> she : result'
+    Parameters
+    ----------
+    model: Word2VecKeyedVectors
+        the gensim model
+    word: str
+        the word to test
+
+    Returns
+    -------
+    tuple
+        the nearest word and cos sim to original word
+
+    '''
+    result = model.most_similar(positive = ['she', word], negative = ['he'], topn = 1)
+    result_word = result[0][0]
+    print("he : '%s' ----> she : '%s'" % (word, result_word))
+    return result
+
 # A sanity check function to confirm that the numpy array of the corpus
 # Corresponds to the gensim model
 def confirm_key(n,model, vectors, labels):
@@ -201,3 +222,30 @@ def get_direct_bias(word, g, labels, vectors,c=1.0):
     v2 /= np.linalg.norm(v2)
     bias = (abs( v1@v2 ))**c
     return bias
+
+# This function generates a list of potentially biased words to expand the training set.
+# These words are the n-most similar words to known biased words.
+def extend_professions(model, prof_list, n):
+    '''
+    Generates further potential biased words based on cos_similarity
+    Parameters
+    ----------
+    model: Word2VecKeyedVectors
+        Gensim model
+    prof_list: list
+        List of strings
+    n: int
+        nearest n words
+
+    Returns
+    -------
+    list
+    '''
+    output = []
+    for prof in prof_list:
+        list1 = model.most_similar(positive = prof, topn = n)
+        list2 = model.most_similar(positive = ['she', prof], negative = ['he'], topn = n)
+        list3 = list1 + list2
+        output += [wrd[0] for wrd in list3]
+
+    return output

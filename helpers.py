@@ -7,10 +7,6 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 
 
-# Various functions to process the corpus.
-
-# Some functions for playing
-
 # Displays the n most similar words to a given word.
 def n_most_similar(model, word, n):
     list = model.most_similar(positive = word, topn = n)
@@ -61,7 +57,7 @@ def confirm_key(n,model, vectors, labels):
     None
     '''
     test_word = labels[n]
-    test_key = vectors[n, :]
+    test_key = vectors[:, n]
     model_key = model.get_vector(test_word)
     print("For test word '%s' the comparison of the model and numpy array vectors is: %r." % (test_word, np.array_equal(test_key, model_key)))
 
@@ -84,8 +80,7 @@ def get_vector(word, labels, vectors):
         Word embedding vector for the word.
     '''
     idx = np.where(labels == word)
-    vec = np.squeeze(vectors[idx, :])
-    vec /= np.linalg.norm(vec)
+    vec = np.squeeze(vectors[:, idx])
     return vec
 
 
@@ -107,7 +102,7 @@ def get_subspace(labels, vectors, pair_list):
     ndarray
         Numpy array of concatenated vectors of difference between pairs.
     '''
-    dim = (np.shape(vectors)[1], len(pair_list))
+    dim = (np.shape(vectors)[0], len(pair_list))
     subspace = np.zeros(dim)
 
     for i, pair in enumerate(pair_list):
@@ -130,7 +125,7 @@ def norm_svd(subspace):
         A tuple containing the SVD of the normalized subspace. Format is
         (U, S, VT) where VT signifies transpose of V.
     '''
-    norm_gsub = subspace / subspace.sum(axis = 0, keepdims = 1)
+    norm_gsub = subspace / np.linalg.norm(subspace, ord=2, axis=0, keepdims=True)
     U, S, VT = np.linalg.svd(norm_gsub)
     return (U, S, VT)
 

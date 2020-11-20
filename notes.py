@@ -30,3 +30,32 @@ def debias(E, gender_specific_words, definitional, equalize):
             E.vecs[E.index[a]] = z * gender_direction + y
             E.vecs[E.index[b]] = -z * gender_direction + y
     E.normalize()
+
+    #%% Convert to numpy arrays and pickle
+
+# Converts the gensim model to a numpy array.
+# and corresponding labels.
+# vectors_debiased = np.asarray(model_debiased.wv.vectors)
+# labels_debiased = np.asarray(model_debiased.wv.index2word)
+#
+# # Saves this (large) numpy array to file.
+# with open('w2v_as_np_debiased.pickle', 'wb') as f:
+#     pickle.dump(vectors_debiased, f)
+#
+# with open('labels_debiased.pickle', 'wb') as f:
+#     pickle.dump(labels_debiased, f)
+
+#%%
+
+
+# Converts the gensim model to a numpy array.
+# and corresponding labels.
+# vectors = np.asarray(model.wv.vectors)
+# labels = np.asarray(model.wv.index2word)
+
+# Saves this (large) numpy array to file.
+#with open('w2v_as_np.pickle', 'wb') as f:
+#pickle.dump(vectors, f)
+#
+# with open('labels_for_npmat.pickle', 'wb') as f:
+#     pickle.dump(labels, f)

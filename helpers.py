@@ -5,7 +5,22 @@ import gensim
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
+import pickle
 
+def load_stuff(path):
+    '''
+    Loads a file
+    Parameters
+    ----------
+    path: str
+        local or full path of file
+
+    Returns
+    -------
+    '''
+    with open(path, 'rb') as f:
+        file = pickle.load(f)
+    return file
 
 # Displays the n most similar words to a given word.
 def n_most_similar(model, word, n):
@@ -244,3 +259,25 @@ def extend_professions(model, prof_list, n):
         output += [wrd[0] for wrd in list3]
 
     return output
+
+def n_largest(n, array, smallest = False):
+    '''
+    Returns indices of the n lagest or smallest values in the array.
+    Parameters
+    ----------
+    n: int
+    array: ndarray
+    smallest: bool
+
+    Returns
+    ndarray
+    -------
+
+    '''
+    if smallest == False:
+        return (-array).argsort()[:n]
+    elif smallest == True:
+        return (-array).argsort()[-n:]
+    else:
+        raise ValueError("Must be a boolean.")
+

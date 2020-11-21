@@ -13,6 +13,7 @@ import timeit
 from sklearn.decomposition import PCA
 import json
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.model_selection import train_test_split
 
 #%% Loads the word2vec news corpus into gensim to make use of gensims
 # analytical tools.
@@ -77,3 +78,40 @@ ind_test_smallest = helpers.n_largest(100, cos_sim, smallest = True)
 
 sample = labels[ind]
 sample_smallest = labels[ind_smallest]
+
+#%% Set up the training data.
+
+# Get the 500 largest and smallest differences between the
+# cleaned and uncleaned word2vec sets. Largest will be assumed
+# to be 'biased', smallest 'unbiased'.
+idx_biased = helpers.n_largest(500, cos_sim)
+idx_unbiased = helpers.n_largest(500, cos_sim, smallest=True)
+
+# Make lists/arrays of the labels as indices from the original
+# word2vec corpus, the strings of the words, and the binary labels.
+labels_corpus_ind = np.concatenate( (idx_unbiased, idx_biased) )
+labels_strings = list(labels[idx_unbiased]) + list(labels[idx_biased])
+labels_binary = np.concatenate( (np.zeros( (500,)), np.ones( (500,) )))
+
+# Extract the word embeddings and concatenate into full training
+# matrix.
+unbiased_vecs = vectors_short[:, idx_unbiased]
+biased_vecs = vectors_short[:, idx_biased]
+full_training_mat = np.hstack( (unbiased_vecs, biased_vecs) )
+
+
+#%% List analogies from the original (i.e. still biased) w2v corpus. A cursory
+# examination shows that these least-changed embeddings are indeed not biased,
+# since the analogies return sensible results such as 'he : cooking -> she : Cooking'.
+for word in labels_strings[0:50]:
+    print(helpers.he_she_compare(model, word))
+
+#%% Does the same with the largest cosine similarity embeddings. The results
+# from this one are far less clear, and cast doubt on the entire endeavor.
+for word in labels_strings[-50:]:
+    print(helpers.he_she_compare(model, word))
+
+#%% Create train/test sets
+
+trans_mat = full_training_mat.T
+x_train, x_test, y_train, y_test = train_test_split(trans_mat, labels_binary, test_size=0.2, random_state=13)

@@ -115,3 +115,44 @@ for word in labels_strings[-50:]:
 
 trans_mat = full_training_mat.T
 x_train, x_test, y_train, y_test = train_test_split(trans_mat, labels_binary, test_size=0.2, random_state=13)
+
+#%% Imports for training
+
+from keras.models import Sequential
+from keras.layers import Dense
+from keras import Input
+from tensorflow.keras import initializers
+from keras.wrappers.scikit_learn import KerasClassifier
+from sklearn.model_selection import cross_val_score
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import StratifiedKFold
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import confusion_matrix
+
+#%% Network architecture
+
+def create_base_model():
+    base_model = Sequential()
+    base_model.add(Dense(20, activation = 'relu', kernel_initializer= 'random_normal', input_dim=300))
+    base_model.add(Dense(20, activation = 'relu', kernel_initializer= 'random_normal'))
+    base_model.add(Dense(1, activation='sigmoid',kernel_initializer= 'random_normal'))
+    base_model.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
+    return base_model
+
+#%% Run model
+classif_output = KerasClassifier(build_fn=create_base_model, epochs=100, batch_size=10, verbose=0, )
+
+# K=10 fold cross validation
+k_fold = StratifiedKFold(n_splits=10, shuffle=True)
+results = cross_val_score(classif_output, x_train, y_train, cv=k_fold)
+print("Accuracy: %.2f%%   STD: %.2f%%" % (results.mean()*100, results.std()*100))
+#%% Also fit the model directly for method access.
+classif_output.fit(x_train, y_train)
+
+#%% Evaluate
+
+y_pred = classif_output.model.predict(x_test)
+y_pred = (y_pred > 0.5)
+confmat = confusion_matrix(y_test, y_pred)
+print(confmat)
